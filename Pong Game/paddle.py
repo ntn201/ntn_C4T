@@ -8,6 +8,7 @@ class paddle:
         self.up_press = False
         self.down_press = False
         self.boxcollider = BoxCollider(self,self.image.get_width(),self.image.get_height())
+        self.active = True
     def move(self):
         if self.up_press:
             self.y -= 4

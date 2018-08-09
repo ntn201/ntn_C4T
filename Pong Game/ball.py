@@ -19,6 +19,23 @@ class ball:
         self.image = pygame.image.load("Assets/ball.png")
         self.box_collider = BoxCollider(self,self.image.get_width(),self.image.get_height())
 
+    def coliision_check(self,other,moveX,moveY):
+        # Horizontal check
+        hor_check_box = BoxCollider(self,self.image.get_width(),self.image.get_height())
+        hor_check_box.x += moveX
+        if hor_check_box.collide_with(other.boxcollider):
+            while not self.box_collider.collide_with(other.boxcollider):
+                self.x += 1
+                self.box_collider.x += 1
+            moveX = 0
+        # Vertical check
+        ver_check_box = BoxCollider(self,self.image.get_width(),self.image.get_height())
+        ver_check_box.x += moveY
+        if ver_check_box.collide_with(other.boxcollider):
+            while not self.box_collider.collide_with(other.boxcollider):
+                self.y += 1
+                self.box_collider.y += 1
+            moveY = 0
     def move(self,other):
         # Pick a random direction when game start
         if self.direction == [0,0]:
@@ -39,34 +56,55 @@ class ball:
                 self.direction[1] -= 0.1* sign(self.direction[1])
 
         #Change direction if collide with paddle
+        
         for obj in other:
-            if self.box_collider.collide_with(obj.boxcollider):
-                if self.box_collider.collide_with_top(obj.boxcollider):
-                    self.direction[0] += 0
-                    self.direction[1] += -2
-                if self.box_collider.collide_with_bottom(obj.boxcollider):
-                    self.direction[0] += 0
-                    self.direction[0] += 2
-                if self.box_collider.collide_with_left(obj.boxcollider):
-                    self.direction[0] += -2
-                    self.direction[0] += 0
-                if self.box_collider.collide_with_right(obj.boxcollider):
-                    self.direction[0] += 2
-                    self.direction[0] += 0
-                # if obj.up_press or obj.down_press:
-                #     self.direction[0] *= 1.5
-                #     self.direction[1] *= 1.5
+            if obj.active:
+                if self.box_collider.collide_with(obj.boxcollider):
+                    ver = self.box_collider.collide_with_vertical(obj.boxcollider)
+                    hor = self.box_collider.collide_with_horizon(obj.boxcollider)
+                    print (self.direction)
+                    top = (obj.y + obj.boxcollider.height/2) - (self.y - self.image.get_height()/2)
+                    bot = (self.y + self.image.get_height()/2) - (obj.y - obj.boxcollider.height/2)
+                    left = (obj.x + obj.boxcollider.width/2) - (self.x - self.image.get_width()/2) 
+                    right = (self.x + self.image.get_width()/2) - (obj.x - obj.boxcollider.width/2)
+                    if ver:
+                        if top < left or bot < left or top < right or bot < right :
+                            print ("hihi")
+                            print(abs(self.y - obj.y))
+                            print((self.y - self.image.get_height()/2),(obj.y + obj.boxcollider.height/2))#top
+                            print((self.y + self.image.get_height()/2),(obj.y - obj.boxcollider.height/2))#bot
+                            print((self.x - self.image.get_width()/2),(obj.x + obj.boxcollider.width/2))#left
+                            print((self.x + self.image.get_width()/2),(obj.x - obj.boxcollider.width/2))
+                            self.direction[1] *= -1
+                        else:
+                            print("haha")
+                            self.direction[0] *= -1
+                    elif ver:
+                         self.direction[1] *= -1
+                         print("hehe")
+                    elif hor:
+                        self.direction[0] *= -1
+                        print("hoho")
+                    print (self.direction)
+                    for paddle in other:
+                        paddle.active = True
+                    obj.active = False
         # Change direction if collide with window
         if self.x >= 785 or self.x <= 15:
             self.direction[0] *= -1
+            for obj in other:
+                obj.active = True
         if self.y >= 585 or self.y <= 15:
             self.direction[1] *= -1
+            for obj in other:
+                obj.active = True
         
-        print (self.direction)
         
         # Apply movements
-        self.x += (self.direction[0] * self.speed)
-        self.y += (self.direction[1] * self.speed)
+        moveX = (self.direction[0] * self.speed)
+        moveY = (self.direction[1] * self.speed)
+        self.x += moveX
+        self.y += moveY
     
     def update(self,other,canvas):
         self.move(other)

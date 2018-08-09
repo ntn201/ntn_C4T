@@ -24,31 +24,21 @@ class BoxCollider:
         y_overlap = top2 <= bottom1 and bottom2 >= top1
         return x_overlap and y_overlap
 
-    def collide_with_top(self,other):
+    def collide_with_vertical(self,other):
         if not self.collide_with(other):
             return False
-        if (self.y + self.height/2) >= (other.y - other.height/2):
+        top = (other.y + other.height/2) - (self.y - self.height/2) < 6
+        bot = (self.y + self.height/2) - (other.y - other.height/2) < 6
+        if top or bot:
             return True
         return False
 
-    def collide_with_bottom(self,other):
+    def collide_with_horizon(self,other):
         if not self.collide_with(other):
             return False
-        if (self.y - self.height/2) <= (other.y + other.height/2):
-            return True
-        return False
-
-    def collide_with_left(self,other):
-        if not self.collide_with(other):
-            return False
-        if (self.x + self.width/2) >= (other.x - other.width/2):
-            return True
-        return False
-    
-    def collide_with_right(self,other):
-        if not self.collide_with(other):
-            return False
-        if (self.x - self.width/2) <= (other.x + other.width/2):
+        left = (other.x + other.width/2) - (self.x - self.width/2) < 6
+        right = (self.x + self.width/2) - (other.x - other.width/2) < 6 
+        if left or right:
             return True
         return False
 
